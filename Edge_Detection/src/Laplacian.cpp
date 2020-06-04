@@ -11,6 +11,7 @@ int main(int argc, char** argv) {
     return -1;
   }
   cv::imshow("src-img", src_img); 
+  cv::imwrite("../img/Laplacian/src-img.png", src_img);
   cv::waitKey(0);
 
   cv::Mat dst_img = src_img;
@@ -24,5 +25,6 @@ int main(int argc, char** argv) {
   cv::filter2D(src_img, dst_img, src_img.type(), filter);
 
   cv::imshow("dst-img", dst_img);
+  cv::imwrite("../img/Laplacian/dst-img.png", dst_img);
   cv::waitKey(0);
 }
