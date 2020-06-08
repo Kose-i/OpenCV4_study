@@ -9,3 +9,12 @@ target_link_libraries(Laplacian ${OpenCV_LIBS})
 
 add_executable(LoG src/LoG.cpp)
 target_link_libraries(LoG ${OpenCV_LIBS})
+
+add_executable(DoG src/DoG.cpp)
+target_link_libraries(DoG ${OpenCV_LIBS})
+
+add_executable(LineOperate src/LineOperate.cpp)
+target_link_libraries(LineOperate ${OpenCV_LIBS})
+
+add_executable(Canny src/Canny.cpp)
+target_link_libraries(Canny ${OpenCV_LIBS})
