@@ -2,6 +2,7 @@
 constexpr int epsilon {1};
 
 cv::Mat senkei(cv::Mat img) {
+  cv::Mat dist_img;
   double Min, Max;
   cv::minMaxLoc(img, &Min, &Max);
   img -= Min;

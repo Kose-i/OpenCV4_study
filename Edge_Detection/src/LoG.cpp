@@ -1,7 +1,21 @@
 #include <opencv2/opencv.hpp>
 #include <string>
 
+constexpr double thread_log_a {0.01};
+constexpr double thread_Sobel {10};
+constexpr int thread_a {30};
 std::string src_img_name {"../img/lenna.jpg"};
+
+constexpr int epsilon {1};
+
+cv::Mat senkei(cv::Mat img) {
+  double Min, Max;
+  cv::minMaxLoc(img, &Min, &Max);
+  img -= Min;
+  cv::Mat dist_img;
+  img.convertTo(dist_img, CV_8U, 255.0/(Max-Min+epsilon));
+  return dist_img;
+}
 
 int main(int argc, char** argv) {
   cv::Mat src_img = cv::imread(src_img_name, cv::IMREAD_GRAYSCALE);
@@ -31,54 +45,7 @@ int main(int argc, char** argv) {
   Laplacian_filter.at<double>(1,0) = 1;Laplacian_filter.at<double>(1,1) =-4;Laplacian_filter.at<double>(1,2) = 1;
   Laplacian_filter.at<double>(2,0) = 0;Laplacian_filter.at<double>(2,1) = 1;Laplacian_filter.at<double>(2,2) = 0;
 
-  std::cout << LoG_img.rows << '-' << LoG_img.cols << '\n';
-  std::cout << gaussian_img.rows << '-' << gaussian_img.cols << '\n';
-
-  for (auto y = 0;y < gaussian_img.rows;++y) {
-    for (auto x = 0;x < gaussian_img.cols;++x) {
-      //double val = LoG_img.at<double>(x,y);
-//      if (val==0) {
-//        LoG_img.at<double>(x,y) = 0;
-//        continue;
-//      }
-      double a1,a2,a3, b1,b2,b3, c1,c2,c3;
-      //a1 = (x!=0&&y!=0)?gaussian_img.at<double>(x-1,y-1):0;
-      a1 = (x!=0&&y!=0)?gaussian_img.at<double>(y-1,x-1):0;
-      //b1 = (y!=0)?gaussian_img.at<double>(x, y-1):0;
-      b1 = (y!=0)?gaussian_img.at<double>(y-1, x):0;
-      //c1 = (y!=0&&x!=gaussian_img.cols-1)?gaussian_img.at<double>(x+1,y-1):0;
-      c1 = (y!=0&&x!=gaussian_img.cols-1)?gaussian_img.at<double>(y-1,x+1):0;
-      //a2 = (x!=0)?gaussian_img.at<double>(x-1,y):0;
-      a2 = (x!=0)?gaussian_img.at<double>(y,x-1):0;
-      //b2 = gaussian_img.at<double>(x, y);
-      b2 = gaussian_img.at<double>(y,x);
-      //c2 = (x!=gaussian_img.cols-1)?gaussian_img.at<double>(x+1,y):0;
-      c2 = (x!=gaussian_img.cols-1)?gaussian_img.at<double>(y,x+1):0;
-      //a3 = (y!=gaussian_img.rows-1&&x!=0)?gaussian_img.at<double>(x-1,y+1):0;
-      a3 = (y!=gaussian_img.rows-1&&x!=0)?gaussian_img.at<double>(y+1,x-1):0;
-      //b3 = (y!=gaussian_img.rows-1)?gaussian_img.at<double>(x, y+1):0;
-      b3 = (y!=gaussian_img.rows-1)?gaussian_img.at<double>(y+1,x):0;
-      //c3 = (y!=gaussian_img.rows-1&&x!=gaussian_img.cols-1)?gaussian_img.at<double>(x+1,y+1):0;
-      c3 = (y!=gaussian_img.rows-1&&x!=gaussian_img.cols-1)?gaussian_img.at<double>(y+1,x+1):0;
-      LoG_img.at<double>(y,x)= b1;
-      LoG_img.at<double>(y,x)+= a2;
-      LoG_img.at<double>(y,x)+= b2*(-4);
-      LoG_img.at<double>(y,x)+= c2;
-      LoG_img.at<double>(y,x)+= b3;
-      if (LoG_img.at<double>(y,x)<0)std::cout << "-";
-      //LoG_img.at<double>(y,x) = a1*Laplacian_filter.at<double>(0,0);
-      //LoG_img.at<double>(y,x)+= b1*Laplacian_filter.at<double>(1,0);
-      //LoG_img.at<double>(y,x)+= c1*Laplacian_filter.at<double>(2,0);
-      //LoG_img.at<double>(y,x)+= a2*Laplacian_filter.at<double>(0,1);
-      //LoG_img.at<double>(y,x)+= b2*Laplacian_filter.at<double>(1,1);
-      //LoG_img.at<double>(y,x)+= c2*Laplacian_filter.at<double>(2,1);
-      //LoG_img.at<double>(y,x)+= a3*Laplacian_filter.at<double>(0,2);
-      //LoG_img.at<double>(y,x)+= b3*Laplacian_filter.at<double>(1,2);
-      //LoG_img.at<double>(y,x)+= c3*Laplacian_filter.at<double>(2,2);
-    }
-  }
-  //cv::filter2D(gaussian_img, LoG_img, gaussian_img.type(), Laplacian_filter);
-
+  cv::filter2D(gaussian_img, LoG_img, gaussian_img.type(), Laplacian_filter);
   cv::imshow("LoG-img", LoG_img);
   cv::imwrite("../img/LoG/LoG-img.png", LoG_img);
   cv::waitKey(0);
@@ -86,31 +53,58 @@ int main(int argc, char** argv) {
   int LoG_rows = LoG_img.rows;
   int LoG_cols = LoG_img.cols;
 
-  cv::Mat LoG_img_a = cv::Mat::zeros(LoG_rows, LoG_cols, CV_8U);
+  cv::Mat LoG_img_a = senkei(LoG_img);
+  cv::Mat LoG_img_a_result = cv::Mat::zeros(LoG_rows, LoG_cols, CV_8U);
 
   for (auto y = 0;y < LoG_rows;++y) {
     for (auto x = 0;x < LoG_cols;++x) {
-      double val = LoG_img.at<double>(x,y);
-      if (val==0) {
-        LoG_img_a.at<unsigned char>(x,y) = 255;
+      double val = LoG_img_a.at<unsigned char>(x,y);
+      if (val>=thread_a) {
+        LoG_img_a_result.at<unsigned char>(x,y) = 255;
+//        continue;
+      } else {
         continue;
       }
-      double a1,a2,a3, b1,b2,b3, c1,c2,c3;
-      a1 = (x!=0&&y!=0)?src_img.at<double>(x-1,y-1):0;
-      b1 = (y!=0)?src_img.at<double>(x, y-1):0;
-      c1 = (y!=0&&x!=src_img.cols-1)?src_img.at<double>(x+1,y-1):0;
-      a2 = (x!=0)?src_img.at<double>(x-1,y):0;
-      b2 = src_img.at<double>(x, y);
-      c2 = (x!=src_img.cols-1)?src_img.at<double>(x+1,y):0;
-      a3 = (y!=src_img.rows-1&&x!=0)?src_img.at<double>(x-1,y+1):0;
-      b3 = (y!=src_img.rows-1)?src_img.at<double>(x, y+1):0;
-      c3 = (y!=src_img.rows-1&&x!=src_img.cols-1)?src_img.at<double>(x+1,y+1):0;
-      if (val*a1<0||val*a2<0||val*a3<0||val*b1<0||val*b2<0||val*b3<0||val*c1<0||val*c2<0||val*c3<0) {
-        LoG_img_a.at<unsigned char>(x,y) = 255;
-      }
+      //if (x!=0&&y!=0)LoG_img_a_result.at<double>(x-1,y-1)=255;
+      //if (y!=0)LoG_img_a_result.at<double>(x, y-1)=0;
+      //if (y!=0&&x!=LoG_img_a_result.cols-1)LoG_img_a_result.at<double>(x+1,y-1)=0;
+      //if (x!=0)LoG_img_a_result.at<double>(x-1,y)=0;
+      //if (x!=LoG_img_a_result.cols-1)LoG_img_a_result.at<double>(x+1,y)=0;
+      //if (y!=LoG_img_a_result.rows-1&&x!=0)LoG_img_a_result.at<double>(x-1,y+1)=0;
+      //if (y!=LoG_img_a_result.rows-1)LoG_img_a_result.at<double>(x, y+1)=0;
+      //if (y!=LoG_img_a_result.rows-1&&x!=LoG_img_a_result.cols-1)LoG_img_a_result.at<double>(x+1,y+1)=0;
     }
   }
-  cv::imshow("LoG-img-a", LoG_img_a);
-  cv::imwrite("../img/LoG/LoG-img-a.png", LoG_img_a);
+//  cv::imshow("LoG-img-a", LoG_img_a);
+//  cv::imwrite("../img/LoG/LoG-img-a.png", LoG_img_a);
+  cv::imshow("result", LoG_img_a_result);
+  cv::imwrite("../img/LoG/LoG-img-a-result.png", LoG_img_a_result);
+  
+  cv::Mat LoG_img_b_result = cv::Mat::zeros(LoG_rows, LoG_cols, CV_8U);
+  {
+    //cv::Mat Sobel_filter = cv::Mat::zeros(3, 3, CV_64F);
+    std::vector<std::vector<double>> Sobel_filter {{-1, 0, 1}, {-2, 0, 2}, {-1, 0, 1}};
+
+//    Sobel_filter.at<double>(0,0) =-1;Sobel_filter.at<double>(0,1) = 0;Sobel_filter.at<double>(0,2) = 1;
+//    Sobel_filter.at<double>(1,0) =-2;Sobel_filter.at<double>(1,1) = 0;Sobel_filter.at<double>(1,2) = 2;
+//    Sobel_filter.at<double>(2,0) =-1;Sobel_filter.at<double>(2,1) = 0;Sobel_filter.at<double>(2,2) = 1;
+
+    cv::Mat tmp_img;
+    cv::filter2D(gaussian_img, tmp_img, gaussian_img.type(), Sobel_filter);
+    for (auto y = 0;y < LoG_rows;++y) {
+      for (auto x = 0;x < LoG_cols;++x) {
+        //      double val = LoG_img_a.at<double>(x,y);
+        if (tmp_img.at<double>(x,y) > thread_Sobel) {
+          LoG_img_b_result.at<unsigned char>(x,y) = 255;
+        }
+      }
+    }
+//    Sobel_filter.at<double>(0,0) =-1;Sobel_filter.at<double>(0,1) =-2;Sobel_filter.at<double>(0,2) =-1;
+//    Sobel_filter.at<double>(1,0) = 0;Sobel_filter.at<double>(1,1) = 0;Sobel_filter.at<double>(1,2) = 0;
+//    Sobel_filter.at<double>(2,0) = 1;Sobel_filter.at<double>(2,1) = 2;Sobel_filter.at<double>(2,2) = 1;
+//    cv::Mat tmp2_img;
+//    cv::filter2D(gaussian_img, tmp2_img, gaussian_img.type(), Sobel_filter);
+  }
+  cv::imshow("b-result", LoG_img_b_result);
   cv::waitKey(0);
 }
