@@ -1,0 +1,10 @@
+double a1,a2,a3, b1,b2,b3, c1,c2,c3;
+a1 = (x!=0&&y!=0)?src_img.at<double>(x-1,y-1):0;
+b1 = (y!=0)?src_img.at<double>(x, y-1):0;
+c1 = (y!=0&&x!=src_img.cols-1)?src_img.at<double>(x+1,y-1):0;
+a2 = (x!=0)?src_img.at<double>(x-1,y):0;
+b2 = src_img.at<double>(x, y);
+c2 = (x!=src_img.cols-1)?src_img.at<double>(x+1,y):0;
+a3 = (y!=src_img.rows-1&&x!=0)?src_img.at<double>(x-1,y+1):0;
+b3 = (y!=src_img.rows-1)?src_img.at<double>(x, y+1):0;
+c3 = (y!=src_img.rows-1&&x!=src_img.cols-1)?src_img.at<double>(x+1,y+1):0;
