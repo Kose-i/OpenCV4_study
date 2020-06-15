@@ -16,6 +16,9 @@ target_link_libraries(LoG ${OpenCV_LIBS})
 add_executable(DoG src/DoG.cpp)
 target_link_libraries(DoG ${OpenCV_LIBS})
 
+add_executable(DoG2 src/DoG2.cpp)
+target_link_libraries(DoG2 ${OpenCV_LIBS})
+
 add_executable(LineOperate src/LineOperate.cpp)
 target_link_libraries(LineOperate ${OpenCV_LIBS})
 

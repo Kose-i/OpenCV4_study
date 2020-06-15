@@ -10,6 +10,7 @@ int main(int argc, char** argv) {
     std::cerr << src_img_name << " is not found\n";
     return -1;
   }
+  std::cout << src_img.rows << ' ' << src_img.cols << '\n';
   cv::imshow("src-img", src_img); 
   cv::imwrite("../img/Canny/src-img.png", src_img);
   cv::waitKey(0);
