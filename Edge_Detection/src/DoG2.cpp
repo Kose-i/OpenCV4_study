@@ -65,7 +65,7 @@ int main(int argc, char *argv[]) {
     if (key_push=='q') {
       break;
     } else if (key_push == 's') {
-      cv::imwrite("../img/DoG2/DoG2.png", DoG_img);
+      cv::imwrite("../img/DoG2/DoG3.png", DoG_img);
     }
   }
   return 0;
