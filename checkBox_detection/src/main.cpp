@@ -4,6 +4,11 @@
 #include <cmath>
 
 #include "align_img.hpp"
+#include "get_checkbox.hpp"
+
+bool operator<(Box& l, Box& r) {
+  return (l.lt.y < r.lt.y)?true:(l.lt.x<r.lt.x);
+}
 
 int main(int argc, char** argv) {
 
@@ -30,14 +35,39 @@ int main(int argc, char** argv) {
   }
   cv::Mat median_diff_img = diff_img;
   medianBlur(diff_img, median_diff_img, 3);//(3,3);
+
+  //std::vector<std::vector<cv::Point>> output_contours;
+  //cv::findContours(median_diff_img, output_contours, cv::noArray(), cv::RETR_LIST, cv::CHAIN_APPROX_SIMPLE);
+  //
+  //median_diff_img = cv::Scalar::all(0);
+  //cv::drawContours(median_diff_img, output_contours, -1, cv::Scalar::all(255));
+  //cv::imshow("median_diff-img", median_diff_img);
+
+  std::vector<Box> checkbox_pos = get_checkbox_pos(template_img);
+
+  // std::cout << checkbox_pos.size() << '\n'; // 46
+  std::vector<int> checkbox_inner(checkbox_pos.size(), 0);
+
+  std::sort(checkbox_pos.begin(), checkbox_pos.end());
+  std::cout << checkbox_pos.size() << '\n';
+
+  for (auto i = 0;i < checkbox_pos.size();++i) {
+    Box tmp = checkbox_pos[i];
+    int ans {};
+    for (auto y = tmp.lt.y;y < tmp.rb.y;++y) {
+      for (auto x = tmp.lt.x;x < tmp.rb.x;++x) {
+        if (diff_img.at<unsigned char>(y,x)==255) ++ans;
+      }
+    }
+    //std::cout << tmp.lt.x << ' ' << tmp.lt.y << ' ' << tmp.rb.x << ' ' << tmp.rb.y << '\n';
+    cv::rectangle(diff_img, tmp.lt, tmp.rb, cv::Scalar(255));//draw rectangle
+    checkbox_inner[i] = ans;
+  }
+  for (const auto& e : checkbox_inner) {
+    std::cout << ' ' << e;
+  }
+  std::cout << '\n';
+
   cv::imshow("diff-img", diff_img);
-
-  std::vector<std::vector<cv::Point>> output_contours;
-  cv::findContours(median_diff_img, output_contours, cv::noArray(), cv::RETR_LIST, cv::CHAIN_APPROX_SIMPLE);
-  
-  median_diff_img = cv::Scalar::all(0);
-  cv::drawContours(median_diff_img, output_contours, -1, cv::Scalar::all(255));
-  cv::imshow("median_diff-img", median_diff_img);
-
   while(cv::waitKey(0)!='q');
 }
