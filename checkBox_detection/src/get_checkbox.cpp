@@ -110,13 +110,18 @@ std::vector<Box> get_checkbox_pos(const cv::Mat& template_img) {
     }
   }
   //std::cout << box_define.size() << '\n';
-  for (const auto& box : box_define) {
-      cv::rectangle(img_contours, box.lt, box.rb, cv::Scalar(255));//draw rectangle
-  }
+  //for (const auto& box : box_define) {
+      //cv::rectangle(img_contours, box.lt, box.rb, cv::Scalar(255));//draw rectangle
+  //    for (auto y = box.lt.y;y < box.rb.y;++y) {
+  //      for (auto x = box.lt.x;x < box.rb.x;++x) {
+  //        img_contours.at<unsigned char>(y,x) = 255;
+  //      }
+  //    }
+  //}
 
-  cv::imshow("rectangle_sizecheck", img_contours);
-  cv::imwrite("rectangle_sizecheck.jpg", img_contours);
-  while(cv::waitKey(0)!='q');
+  //cv::imshow("rectangle_mask", img_contours);
+  //cv::imwrite("rectangle_mask.jpg", img_contours);
+  //while(cv::waitKey(0)!='q');
 
   //while(cv::waitKey(0)!='q');
   return box_define;
