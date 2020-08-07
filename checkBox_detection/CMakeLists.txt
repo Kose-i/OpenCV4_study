@@ -19,5 +19,10 @@ target_link_libraries(main
 #  include
 )
 
-#add_executable()
-#target_link_libraries()
+add_executable(make_img
+  src/a.cpp
+  src/get_checkbox.cpp
+)
+target_link_libraries(make_img
+  ${OpenCV_LIBS}
+)
