@@ -99,11 +99,16 @@ std::vector<Box> get_checkbox_pos(const cv::Mat& template_img) {
   //for (const auto& e : points_candidate) {
   //    cv::rectangle(dist_img, e.lt, e.rb, cv::Scalar(255));//draw rectangle
   //}
+  
+  const int template_img_rows = template_img.rows;
 
-
-  for (const auto& e : points_candidate) {
-    for (const auto& f : points_candidate) {
+  for (auto e : points_candidate) {
+    for (auto f : points_candidate) {
       if (is_in(e, f)) { //e > f
+        if (e.lt.y < template_img_rows/2) {
+          e.lt.y += 4;
+          e.rb.y += 4;
+        }
         box_define.push_back(e);
         break;
       }
